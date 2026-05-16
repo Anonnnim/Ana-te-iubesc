@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pentru Ana ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;700&family=Pacifico&family=Mr+Dafoe&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================
+           CSS VARIABLES & RESET
+        ========================================= */
+        :root {
+            --bg: #07020f;
+            --surface: #110520;
+            --rose: #ff2d55;
+            --rose-dim: #c0183a;
+            --rose-glow: rgba(255, 45, 85, 0.35);
+            --blush: #ffb3c6;
+            --cream: #fff0f3;
+            --text: #f0e6ed;
+            --muted: #8b7085;
+            --gold: #ffcf77;
+        }
+        body.pink-theme {
+            --bg: #12040e;
+            --surface: #1e0518;
+            --rose: #ff4d7a;
+            --rose-dim: #d6275a;
+            --rose-glow: rgba(255, 77, 122, 0.4);
+            --blush: #ffc2d4;
+            --text: #ffe4ed;
+            --muted: #9e7088;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+            transition: background 2s ease, color 2s ease;
+            cursor: default;
+        }
+
+        /* =========================================
+           NOISE TEXTURE OVERLAY
+        ========================================= */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.6;
+        }
+
+        /* =========================================
+           FULLSCREEN OVERLAYS
+        ========================================= */
+        .overlay {
+            position: fixed; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── GATE SCREEN ── */
+        #gate-screen {
+            background: radial-gradient(ellipse at 50% 60%, #1f0520 0%, #070212 60%, #000 100%);
+        }
+        .gate-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.8rem, 8vw, 4.5rem);
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 60px;
+            letter-spacing: -0.5px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.8s 0.3s forwards;
+        }
+        .gate-subtitle {
+            font-size: 0.85rem;
+            color: var(--muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -50px;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.6s forwards;
+        }
+        .btn-row {
+            /* BUG FIX: btn-nu was position:absolute removing it from flow */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            height: 70px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.9s forwards;
+        }
+        .btn-magic {
+            padding: 14px 44px;
+            font-size: 1.05rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            border-radius: 100px;
+            border: none;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        #btn-da {
+            background: var(--rose);
+            color: #fff;
+            box-shadow: 0 0 30px var(--rose-glow), 0 4px 20px rgba(0,0,0,0.4);
+        }
+        #btn-da:hover { transform: scale(1.05); box-shadow: 0 0 50px var(--rose-glow), 0 8px 30px rgba(0,0,0,0.5); }
+        #btn-nu {
+            background: transparent;
+            border: 1.5px solid #333;
+            color: #666;
+            /* BUG FIX: was position:absolute. Now it's in the flex flow. */
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s, color 0.2s;
+        }
+        #btn-nu:hover { border-color: #555; color: #888; }
+
+        /* ── SCANNER SCREEN ── */
+        #scanner-screen {
+            display: none; opacity: 0;
+            background: radial-gradient(ellipse at 50% 50%, #0d0018 0%, #000 100%);
+            gap: 0;
+        }
+        .auth-label {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--rose);
+            font-weight: 700;
+            margin-bottom: 50px;
+            opacity: 0.8;
+        }
+        /* SVG Progress Ring — replaces buggy CSS border approach */
+        .ring-wrap {
+            position: relative;
+            width: 160px; height: 160px;
+            display: flex; align-items: center; justify-content: center;
+            touch-action: none;
+        }
+        .ring-svg {
+            position: absolute; inset: 0;
+            transform: rotate(-90deg);
+            overflow: visible;
+        }
+        .ring-track {
+            fill: none;
+            stroke: rgba(255,45,85,0.12);
+            stroke-width: 3;
+        }
+        .ring-progress {
+            fill: none;
+            stroke: var(--rose);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            filter: drop-shadow(0 0 8px var(--rose));
+            transition: stroke-dashoffset 2.5s linear;
+        }
+        .ring-wrap.scanning .ring-progress { stroke-dashoffset: 0; }
+
+        .fp-icon {
+            font-size: 4rem;
+            transition: filter 0.4s ease, transform 0.4s ease;
+            filter: grayscale(1) opacity(0.4);
+            pointer-events: none;
+            position: relative; z-index: 2;
+        }
+        .ring-wrap.scanning .fp-icon {
+            filter: grayscale(0) opacity(1) drop-shadow(0 0 20px var(--rose));
+            transform: scale(1.08);
+            animation: fp-pulse 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes fp-pulse { from { transform: scale(1.08); } to { transform: scale(1.12); } }
+
+        .scanner-hint {
+            margin-top: 36px;
+            font-size: 0.85rem;
+            color: var(--muted);
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .scanner-hint.active { color: var(--rose); }
+
+        /* Ripple glow when scanning */
+        .ring-glow {
+            position: absolute; inset: -20px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,45,85,0);
+            transition: border-color 0.4s;
+            animation: none;
+        }
+        .ring-wrap.scanning .ring-glow {
+            border-color: rgba(255,45,85,0.15);
+            animation: ripple-out 1.5s ease-out infinite;
+        }
+        @keyframes ripple-out {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        /* ── IOS HELLO SCREEN ── */
+        #ios-screen {
+            display: none; opacity: 0;
+            background: #000;
+            perspective: 800px;
+        }
+        .ios-greeting {
+            font-family: 'Mr Dafoe', cursive;
+            font-size: clamp(3rem, 10vw, 6rem);
+            color: #fff;
+            opacity: 0;
+            transform: scale(0.85) translateZ(-40px);
+            transition: opacity 1.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-shadow: 0 0 60px rgba(255,45,85,0.5), 0 0 120px rgba(255,45,85,0.2);
+        }
+        .ios-greeting.show { opacity: 1; transform: scale(1) translateZ(0); }
+
+        /* =========================================
+           MAIN APP
+        ========================================= */
+        #main-app { display: none; position: relative; z-index: 10; }
+        #particles { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+
+        section {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 80px 24px;
+            text-align: center;
+            position: relative; z-index: 5;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(36px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* ── HERO ── */
+        .hero-eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--rose);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .hero-title {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(3.5rem, 12vw, 7rem);
+            color: var(--rose);
+            line-height: 1;
+            text-shadow: 0 0 40px var(--rose-glow), 0 0 80px rgba(255,45,85,0.1);
+            margin-bottom: 24px;
+            animation: hero-glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes hero-glow {
+            from { text-shadow: 0 0 40px var(--rose-glow); }
+            to   { text-shadow: 0 0 80px var(--rose-glow), 0 0 140px rgba(255,45,85,0.15); }
+        }
+        .hero-sub {
+            font-size: 0.9rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .hero-sub::before, .hero-sub::after {
+            content: '';
+            display: block;
+            width: 40px; height: 1px;
+            background: linear-gradient(to right, transparent, var(--muted));
+        }
+        .hero-sub::after { background: linear-gradient(to left, transparent, var(--muted)); }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            opacity: 0.4;
+            animation: bounce-hint 2s ease-in-out infinite;
+        }
+        .scroll-hint span { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+        .scroll-hint::after { content: '↓'; font-size: 1rem; color: var(--muted); }
+        @keyframes bounce-hint {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        /* ── POETRY ── */
+        .poetry-section { background: radial-gradient(ellipse at 20% 50%, rgba(255,45,85,0.04) 0%, transparent 60%); }
+        .poetry-card {
+            max-width: 480px; width: 100%;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,45,85,0.15);
+            border-left: 3px solid var(--rose);
+            border-radius: 0 24px 24px 0;
+            padding: 44px 36px;
+            text-align: left;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+        .poetry-card::before {
+            content: '"';
+            position: absolute;
+            top: -20px; left: 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8rem;
+            color: var(--rose);
+            opacity: 0.12;
+            line-height: 1;
+        }
+        .poetry-card p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-style: italic;
+            line-height: 1.75;
+            color: var(--text);
+            position: relative; z-index: 1;
+        }
+        .poetry-card .hl { color: var(--blush); font-style: normal; font-weight: 600; }
+        .poetry-author {
+            margin-top: 28px;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── FLIP CARDS ── */
+        .flip-section { background: radial-gradient(ellipse at 80% 50%, rgba(255,45,85,0.04) 0%, transparent 60%); }
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 600;
+            color: var(--blush);
+            margin-bottom: 48px;
+            letter-spacing: -0.5px;
+        }
+        .section-title span { color: var(--rose); }
+        .cards-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 420px; z-index: 2; }
+
+        .flip-card { width: 100%; height: 200px; cursor: pointer; perspective: 1200px; }
+        .flip-card-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute; inset: 0;
+            -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,45,85,0.12);
+        }
+        .flip-card-front {
+            background: linear-gradient(135deg, #150312 0%, #1e0420 100%);
+        }
+        .flip-card-back {
+            background: linear-gradient(135deg, #220518 0%, #2e0820 100%);
+            border-color: rgba(255,45,85,0.25);
+            transform: rotateY(180deg);
+        }
+        .flip-card-front h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--blush);
+            margin-bottom: 12px;
+        }
+        .flip-tap {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,45,85,0.5);
+            font-weight: 700;
+        }
+        .flip-card-back p {
+            font-size: 1.05rem;
+            color: var(--text);
+            line-height: 1.65;
+            font-weight: 400;
+        }
+        /* Hover lift */
+        .flip-card:not(.flipped):hover .flip-card-inner { transform: rotateY(8deg) scale(1.02); }
+        .flip-card.flipped:hover .flip-card-inner { transform: rotateY(172deg) scale(1.02); }
+
+        /* ── ENVELOPE ── */
+        .envelope-section { min-height: 90vh; }
+        .env-label {
+            font-size: 0.72rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 48px;
+        }
+        .envelope-wrapper {
+            position: relative;
+            width: 300px; height: 190px;
+            perspective: 1200px;
+            cursor: pointer;
+            filter: drop-shadow(0 20px 60px rgba(255,45,85,0.2));
+            transition: filter 0.4s;
+        }
+        .envelope-wrapper:hover { filter: drop-shadow(0 24px 80px rgba(255,45,85,0.35)); }
+        .envelope-wrapper:hover .env-body { transform: translateY(-3px); }
+
+        .env-body {
+            position: absolute; inset: 0;
+            background: linear-gradient(160deg, #3d0a1e 0%, #5c1030 100%);
+            border-radius: 12px;
+            z-index: 2;
+            transition: transform 0.4s ease;
+        }
+        /* Triangle flap via clip-path — cleaner than border tricks */
+        .env-flap {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            height: 55%;
+            background: linear-gradient(160deg, #4e0d25 0%, #6b1238 100%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            z-index: 4;
+            transform-origin: top center;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .env-bottom {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 50%;
+            background: linear-gradient(0deg, #4a0d22 0%, #5c1030 100%);
+            clip-path: polygon(0 100%, 100% 100%, 50% 0%);
+            border-radius: 0 0 12px 12px;
+            z-index: 3;
+        }
+        .env-left {
+            position: absolute; top: 0; left: 0;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, #3d0a1e 0%, #4a0d22 100%);
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            z-index: 3;
+        }
+        .env-right {
+            position: absolute; top: 0; right: 0;
+            width: 50%; height: 100%;
+            background: linear-gradient(270deg, #3d0a1e 0%, #4a0d22 100%);
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+            z-index: 3;
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: calc(55% - 24px); left: 50%;
+            transform: translateX(-50%);
+            width: 48px; height: 48px;
+            background: radial-gradient(circle, #e8263a, #a8192b);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Pacifico', cursive;
+            color: #fff; font-size: 1.1rem;
+            transition: opacity 0.4s, transform 0.4s;
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 8px; left: 5%; width: 90%; height: 90%;
+            background: linear-gradient(160deg, #1e0414 0%, #2a0618 100%);
+            border: 1px solid rgba(255,45,85,0.3);
+            border-radius: 8px;
+            z-index: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        box-shadow 0.9s ease;
+            box-shadow: 0 0 20px rgba(255,45,85,0.1);
+        }
+        .letter-text {
+            font-family: 'Mr Dafoe', cursive;
+            font-size: 2.2rem;
+            color: var(--blush);
+        }
+        .letter-subtext {
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Open states */
+        .envelope-wrapper.open .wax-seal { opacity: 0; transform: translateX(-50%) scale(0.5); }
+        .envelope-wrapper.open .env-flap { transform: rotateX(180deg); z-index: 0; }
+        .envelope-wrapper.open .letter {
+            transform: translateY(-160px);
+            z-index: 6;
+            box-shadow: 0 20px 60px rgba(255,45,85,0.3);
+        }
+
+        .shake-btn {
+            margin-top: 60px;
+            padding: 14px 32px;
+            background: rgba(255,45,85,0.08);
+            border: 1px solid rgba(255,45,85,0.25);
+            border-radius: 100px;
+            display: inline-flex; align-items: center; gap: 12px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s, transform 0.3s;
+            color: var(--rose);
+        }
+        .shake-btn:hover { background: rgba(255,45,85,0.14); border-color: rgba(255,45,85,0.45); transform: scale(1.04); }
+        .shake-icon { font-size: 1.2rem; animation: tilt-shake 0.55s ease-in-out infinite; }
+        .shake-label { font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; }
+
+        /* ── FOOTER HEARTBEAT ── */
+        .heart-footer {
+            padding: 80px 24px 60px;
+            text-align: center;
+            position: relative; z-index: 5;
+        }
+        .heart-big {
+            font-size: 3rem;
+            display: inline-block;
+            animation: heartbeat 1.2s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.25); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.18); }
+        }
+        .heart-footer p {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           KEYFRAMES
+        ========================================= */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        /* BUG FIX: was `rotate(0eg)` — missing 'd' */
+        @keyframes tilt-shake {
+            0%   { transform: rotate(0deg); }
+            25%  { transform: rotate(18deg); }
+            50%  { transform: rotate(0deg); }
+            75%  { transform: rotate(-18deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* ── Scan success pulse ── */
+        @keyframes success-flash {
+            0% { box-shadow: 0 0 0 0 rgba(255,45,85,0.5); }
+            100% { box-shadow: 0 0 0 40px rgba(255,45,85,0); }
+        }
+
+        /* ── Float particles ── */
+        @keyframes float-up { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <!-- ── ECRAN 1: EȘTI ANA? ── -->
+    <div id="gate-screen" class="overlay">
+        <p class="gate-subtitle">Acces restricționat</p>
+        <h1 class="gate-title">Ești Ana?</h1>
+        <div class="btn-row">
+            <!-- BUG FIX: btn-nu nu mai e position:absolute, rămâne în flex flow -->
+            <button class="btn-magic" id="btn-da">Da ✓</button>
+            <button class="btn-magic" id="btn-nu">Nu</button>
+        </div>
+    </div>
+
+    <!-- ── ECRAN 2: SCANNER ── -->
+    <div id="scanner-screen" class="overlay">
+        <p class="auth-label">Identificare biometrică</p>
+
+        <!-- BUG FIX: progress ring refăcut ca SVG stroke-dashoffset în loc de border hack -->
+        <div class="ring-wrap" id="ring-wrap">
+            <div class="ring-glow"></div>
+            <svg class="ring-svg" viewBox="0 0 160 160">
+                <circle class="ring-track" cx="80" cy="80" r="70"/>
+                <circle class="ring-progress" cx="80" cy="80" r="70" id="ring-prog"/>
+            </svg>
+            <div class="fp-icon" id="fp">☝️</div>
+        </div>
+
+        <p class="scanner-hint" id="scanner-hint">Menține degetul apăsat</p>
+    </div>
+
+    <!-- ── ECRAN 3: HELLO ── -->
+    <div id="ios-screen" class="overlay">
+        <div class="ios-greeting" id="ios-text">Bună, regina mea.</div>
+    </div>
+
+    <!-- ── CANVAS-URI ── -->
+    <canvas id="particles"></canvas>
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- =========================================
+         MAIN APP
+    ========================================= -->
+    <div id="main-app">
+
+        <!-- HERO -->
+        <section>
+            <p class="hero-eyebrow reveal">O surpriză pentru</p>
+            <h1 class="hero-title reveal reveal-delay-1">Ana</h1>
+            <p class="hero-sub reveal reveal-delay-2">glisează în jos</p>
+            <div class="scroll-hint">
+                <span>scroll</span>
+            </div>
+        </section>
+
+        <!-- POETRY -->
+        <section class="poetry-section">
+            <div class="poetry-card reveal">
+                <p>
+                    Sincer... nu mă pricep să scriu poezii pompoase. Dar știu un lucru sigur:<br><br>
+                    Când sunt cu tine, <span class="hl">timpul parcă se oprește</span>. Ai zâmbetul ăla care îmi face instant ziua mai bună. Fără mișto, ești cel mai frumos gând pe care îl am.<br><br>
+                    Promit să fiu aici, orice ar fi.
+                </p>
+                <p class="poetry-author">— mereu al tău</p>
+            </div>
+        </section>
+
+        <!-- THEME TRIGGER -->
+        <div id="theme-trigger" style="height:1px;"></div>
+
+        <!-- FLIP CARDS -->
+        <section class="flip-section">
+            <h2 class="section-title reveal">Câteva <span>promisiuni</span> 🌸</h2>
+            <div class="cards-grid">
+
+                <div class="flip-card reveal reveal-delay-1">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3>Fără Filme 🧸</h3>
+                            <p class="flip-tap">atinge pentru a deschide</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Promit să mă calmez cu overthink-ul. Ieși cu fetele, distrează-te, ai nevoie de spațiul tău! Eu o să fiu chill, fără filme în cap.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card reveal reveal-delay-2">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3>TikTok-uri 📱</h3>
+                            <p class="flip-tap">atinge pentru a deschide</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Tot o să-ți mai trimit reel-uri, clar! Dar gata cu presiunea. Nu mai contează dacă dai react sau nu, vreau doar să te fac să râzi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card reveal reveal-delay-3">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <h3>Zâmbetul ✨</h3>
+                            <p class="flip-tap">atinge pentru a deschide</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Aș putea să am cea mai proastă zi... dar secunda în care te văd zâmbind, jur că uit de tot. Ești pur și simplu minunată.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ENVELOPE -->
+        <section class="envelope-section">
+            <p class="env-label reveal">Un ultim mesaj</p>
+
+            <div class="reveal reveal-delay-1" style="display:flex;flex-direction:column;align-items:center;">
+                <div class="envelope-wrapper" id="magic-envelope">
+                    <div class="env-body"></div>
+                    <div class="env-flap"></div>
+                    <div class="env-bottom"></div>
+                    <div class="env-left"></div>
+                    <div class="env-right"></div>
+                    <div class="wax-seal">A</div>
+                    <div class="letter">
+                        <div class="letter-text">Te iubesc ∞</div>
+                        <div class="letter-subtext">pentru totdeauna</div>
+                    </div>
+                </div>
+
+                <div class="shake-btn" id="shake-ui">
+                    <span class="shake-icon">📳</span>
+                    <span class="shake-label">Agită sau apasă plicul</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <div class="heart-footer">
+            <div class="heart-big">❤️</div>
+            <p>Numai al tău</p>
+        </div>
+
+    </div>
+
+    <script>
+    // ====================================================
+    //  BUG #1 FIX: btn-nu dodge logic
+    //  (era position:absolute, acum e în flow → translate)
+    // ====================================================
+    const btnNu  = document.getElementById('btn-nu');
+    const btnDa  = document.getElementById('btn-da');
+
+    function dodgeNu(e) {
+        e.preventDefault();
+        const row  = document.querySelector('.btn-row');
+        const rw   = row.getBoundingClientRect();
+        const bw   = btnNu.getBoundingClientRect();
+
+        // Saritura aleatorie, dar nu iese din ecran
+        const maxX = window.innerWidth  - bw.width  - 20;
+        const maxY = window.innerHeight - bw.height - 20;
+        const tx = (Math.random() - 0.5) * Math.min(280, maxX);
+        const ty = (Math.random() - 0.5) * Math.min(200, maxY);
+
+        btnNu.style.transform = `translate(${tx}px, ${ty}px)`;
+        btnNu.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+    }
+
+    btnNu.addEventListener('touchstart',  dodgeNu, { passive: false });
+    btnNu.addEventListener('pointerenter', dodgeNu);
+
+    // ====================================================
+    //  GATE → SCANNER
+    // ====================================================
+    const gateScreen    = document.getElementById('gate-screen');
+    const scannerScreen = document.getElementById('scanner-screen');
+    const iosScreen     = document.getElementById('ios-screen');
+    const mainApp       = document.getElementById('main-app');
+
+    btnDa.addEventListener('click', async () => {
+        try {
+            if (typeof DeviceMotionEvent?.requestPermission === 'function') {
+                await DeviceMotionEvent.requestPermission();
+            }
+        } catch (_) {}
+
+        gateScreen.style.opacity = '0';
+        setTimeout(() => {
+            gateScreen.style.display = 'none';
+            scannerScreen.style.display = 'flex';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                scannerScreen.style.opacity = '1';
+            }));
+        }, 900);
+    });
+
+    // ====================================================
+    //  SCANNER — SVG progress ring (BUG FIX)
+    // ====================================================
+    const ringWrap = document.getElementById('ring-wrap');
+    const hint     = document.getElementById('scanner-hint');
+    const fp       = document.getElementById('fp');
+    let scanTimer  = null;
+    let scanned    = false;
+
+    function startScan() {
+        if (scanned) return;
+        ringWrap.classList.add('scanning');
+        hint.textContent = 'Se analizează...';
+        hint.classList.add('active');
+        if (navigator.vibrate) navigator.vibrate(20);
+
+        scanTimer = setTimeout(() => {
+            scanned = true;
+            hint.textContent = '✓ Aprobat';
+            ringWrap.style.animation = 'success-flash 0.6s ease-out';
+            if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+            setTimeout(() => {
+                scannerScreen.style.opacity = '0';
+                setTimeout(() => {
+                    scannerScreen.style.display = 'none';
+                    iosScreen.style.display = 'flex';
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        iosScreen.style.opacity = '1';
+                    }));
+                    playIos();
+                }, 700);
+            }, 800);
+        }, 2500);
+    }
+
+    function cancelScan() {
+        if (scanned) return;
+        clearTimeout(scanTimer);
+        ringWrap.classList.remove('scanning');
+        hint.textContent = 'Menține degetul apăsat';
+        hint.classList.remove('active');
+    }
+
+    ringWrap.addEventListener('pointerdown', (e) => { e.preventDefault(); startScan(); });
+    ringWrap.addEventListener('pointerup',   cancelScan);
+    ringWrap.addEventListener('pointerleave', cancelScan);
+    ringWrap.style.touchAction = 'none';
+
+    // ====================================================
+    //  IOS HELLO → START APP
+    // ====================================================
+    function playIos() {
+        const txt = document.getElementById('ios-text');
+        setTimeout(() => txt.classList.add('show'), 400);
+        setTimeout(() => txt.classList.remove('show'), 3000);
+        setTimeout(() => {
+            iosScreen.style.opacity = '0';
+            setTimeout(() => {
+                iosScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+                initApp();
+            }, 900);
+        }, 4200);
+    }
+
+    function initApp() {
+        startParticles();
+        initReveal();
+        initFlipCards();
+        initEnvelope();
+    }
+
+    // ====================================================
+    //  SCROLL REVEAL + THEME SWITCH
+    // ====================================================
+    function initReveal() {
+        const revEls = document.querySelectorAll('.reveal');
+        const revObs = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) e.target.classList.add('active');
+            });
+        }, { threshold: 0.12 });
+        revEls.forEach(el => revObs.observe(el));
+
+        // Theme trigger (pink switch)
+        const trig = document.getElementById('theme-trigger');
+        const thObs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting || e.boundingClientRect.top < 0) {
+                    document.body.classList.add('pink-theme');
+                } else {
+                    document.body.classList.remove('pink-theme');
+                }
+            });
+        }, { threshold: 0 });
+        thObs.observe(trig);
+    }
+
+    // ====================================================
+    //  FLIP CARDS
+    // ====================================================
+    function initFlipCards() {
+        document.querySelectorAll('.flip-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('flipped');
+                if (navigator.vibrate) navigator.vibrate(15);
+            });
+        });
+    }
+
+    // ====================================================
+    //  ENVELOPE + SHAKE + CONFETTI
+    // ====================================================
+    function initEnvelope() {
+        const env   = document.getElementById('magic-envelope');
+        const shakeUI = document.getElementById('shake-ui');
+        let opened = false;
+
+        function openEnv() {
+            if (opened) return; opened = true;
+            env.classList.add('open');
+            shakeUI.style.opacity = '0';
+            shakeUI.style.transform = 'scale(0.9)';
+            shakeUI.style.transition = 'all 0.4s ease';
+            if (navigator.vibrate) navigator.vibrate([100, 60, 120]);
+            // BUG FIX: confetti shoots from envelope position, not screen center
+            const rect = env.getBoundingClientRect();
+            shootConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+
+        env.addEventListener('click', openEnv);
+        shakeUI.addEventListener('click', openEnv);
+
+        // Shake detection
+        let lx = 0, ly = 0, lz = 0;
+        window.addEventListener('devicemotion', ev => {
+            if (opened || !ev.accelerationIncludingGravity) return;
+            const a = ev.accelerationIncludingGravity;
+            const delta = Math.abs(a.x - lx) + Math.abs(a.y - ly) + Math.abs(a.z - lz);
+            if (delta > 18) {
+                const r = env.getBoundingClientRect();
+                if (r.top < window.innerHeight + 100 && r.bottom > -100) openEnv();
+            }
+            lx = a.x; ly = a.y; lz = a.z;
+        });
+    }
+
+    // ====================================================
+    //  CONFETTI — BUG FIX: originates from envelope pos
+    // ====================================================
+    function shootConfetti(originX, originY) {
+        const cvs = document.getElementById('confetti-canvas');
+        const ctx = cvs.getContext('2d');
+        cvs.width  = window.innerWidth;
+        cvs.height = window.innerHeight;
+
+        const colors = ['#ff2d55', '#ff6b8a', '#ffb3c6', '#fff', '#ffcf77', '#ff758f'];
+        const shapes = ['circle', 'rect', 'heart'];
+        const particles = [];
+
+        for (let i = 0; i < 100; i++) {
+            const angle = (Math.random() * Math.PI * 2);
+            const speed = 8 + Math.random() * 16;
+            particles.push({
+                x: originX,
+                y: originY,
+                dx: Math.cos(angle) * speed,
+                dy: Math.sin(angle) * speed - Math.random() * 10, // upward bias
+                r: Math.random() * 5 + 2,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                shape: shapes[Math.floor(Math.random() * shapes.length)],
+                rot: Math.random() * Math.PI * 2,
+                drot: (Math.random() - 0.5) * 0.3,
+                life: 1,
+                decay: 0.012 + Math.random() * 0.008
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            let alive = false;
+            particles.forEach(p => {
+                if (p.life <= 0) return;
+                alive = true;
+                p.dy   += 0.45;     // gravity
+                p.dx   *= 0.99;     // air friction
+                p.x    += p.dx;
+                p.y    += p.dy;
+                p.rot  += p.drot;
+                p.life -= p.decay;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+
+                if (p.shape === 'circle') {
+                    ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+                } else if (p.shape === 'rect') {
+                    ctx.rect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+                } else {
+                    // Mini heart
+                    const s = p.r * 0.6;
+                    ctx.moveTo(0, s);
+                    ctx.bezierCurveTo(-s * 2.5, -s, -s * 4, s * 1.5, 0, s * 3.5);
+                    ctx.bezierCurveTo(s * 4, s * 1.5, s * 2.5, -s, 0, s);
+                }
+                ctx.fill();
+                ctx.restore();
+            });
+            if (alive) requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ====================================================
+    //  PARTICLES BACKGROUND
+    // ====================================================
+    function startParticles() {
+        const cvs = document.getElementById('particles');
+        const ctx = cvs.getContext('2d');
+        let W = cvs.width  = window.innerWidth;
+        let H = cvs.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            W = cvs.width  = window.innerWidth;
+            H = cvs.height = window.innerHeight;
+        });
+
+        const isPink = () => document.body.classList.contains('pink-theme');
+
+        class Particle {
+            constructor(fresh) {
+                this.reset();
+                if (!fresh) this.y = Math.random() * H;
+            }
+            reset() {
+                this.x  = Math.random() * W;
+                this.y  = H + 10;
+                this.sz = Math.random() * 1.8 + 0.4;
+                this.vy = Math.random() * 0.6 + 0.3;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.a  = Math.random() * Math.PI * 2;
+                this.opacity = Math.random() * 0.5 + 0.15;
+                this.isHeart = Math.random() < 0.3;
+            }
+            update() {
+                this.y -= this.vy;
+                this.x += this.vx + Math.sin(this.a + this.y * 0.01) * 0.15;
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.globalAlpha = this.opacity;
+                if (this.isHeart && isPink()) {
+                    ctx.font = `${this.sz * 8}px serif`;
+                    ctx.fillStyle = `rgba(255,100,140,1)`;
+                    ctx.fillText('♥', 0, 0);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.sz, 0, Math.PI * 2);
+                    const alpha = isPink() ? 0.4 : 0.35;
+                    ctx.fillStyle = `rgba(255,45,85,${alpha})`;
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        const pts = Array.from({ length: 40 }, () => new Particle(false));
+
+        function loop() {
+            ctx.clearRect(0, 0, W, H);
+            pts.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(loop);
+        }
+        loop();
+    }
+    </script>
+</body>
+</html>
